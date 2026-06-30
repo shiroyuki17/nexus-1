@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model UserProfile {
+  id            String    @id @default(cuid())
+  user_id       String    @unique
+  username      String
+  avatar_url    String?
+  balance       Float     @default(0)
+  points        Float     @default(0)
+  rank          String    @default("Bronze")
+  total_hours   Float     @default(0)
+  current_pc    Int?
+  session_active Boolean  @default(false)
+  session_start DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model PC {
+  id              String    @id @default(cuid())
+  pc_number       Int       @unique
+  zone            String    @default("standard")
+  status          String    @default("available")
+  specs           String?
+  current_user_id String?
+  session_start   DateTime?
+  hourly_rate     Float     @default(5)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Reservation {
+  id             String   @id @default(cuid())
+  user_id        String
+  user_name      String?
+  pc_id          String
+  pc_number      Int?
+  zone           String?
+  date           DateTime
+  start_time     String
+  end_time       String?
+  duration_hours Float
+  status         String   @default("pending")
+  total_cost     Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  description String?
+  image_url   String?
+  is_featured Boolean  @default(false)
+  popularity  Float    @default(0)
+  min_specs   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   @default("drinks")
+  price       Float
+  description String?
+  image_url   String?
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FoodOrder {
+  id        String   @id @default(cuid())
+  user_id   String
+  user_name String?
+  items     Json
+  total     Float
+  status    String   @default("pending")
+  pc_number Int?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tournament {
+  id                   String   @id @default(cuid())
+  title                String
+  game                 String
+  description          String?
+  date                 DateTime
+  time                 String?
+  max_participants     Int?
+  current_participants Int      @default(0)
+  prize_pool           String?
+  entry_fee            Float    @default(0)
+  status               String   @default("upcoming")
+  image_url            String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model TournamentRegistration {
+  id            String   @id @default(cuid())
+  tournament_id String
+  user_id       String
+  user_name     String?
+  team_name     String?
+  status        String   @default("registered")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  user_id       String
+  type          String
+  amount        Float
+  description   String?
+  balance_after Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

@@ -1,0 +1,277 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Night City base ─────────────────── */
+    --background: 250 30% 4%;        /* #07070A deep void */
+    --foreground: 220 20% 92%;       /* near-white */
+    --card: 255 25% 7%;              /* dark panel */
+    --card-foreground: 220 20% 92%;
+    --popover: 255 25% 7%;
+    --popover-foreground: 220 20% 92%;
+
+    /* ── PRIMARY: electric magenta/pink (Night City neon) */
+    --primary: 300 100% 65%;         /* #FF00FF-ish hot magenta */
+    --primary-foreground: 250 30% 4%;
+
+    /* ── SECONDARY: deep violet */
+    --secondary: 270 85% 58%;        /* neon purple */
+    --secondary-foreground: 220 20% 96%;
+
+    --muted: 255 20% 11%;
+    --muted-foreground: 240 12% 50%;
+
+    /* ── ACCENT: electric blue */
+    --accent: 220 100% 62%;          /* #3D8FFF electric blue */
+    --accent-foreground: 220 20% 96%;
+
+    --destructive: 355 85% 58%;
+    --destructive-foreground: 220 20% 96%;
+
+    --border: 260 18% 14%;
+    --input: 255 20% 10%;
+    --ring: 300 100% 65%;
+
+    /* ── chart colors */
+    --chart-1: 300 100% 65%;
+    --chart-2: 270 85% 58%;
+    --chart-3: 145 75% 48%;
+    --chart-4: 220 100% 62%;
+    --chart-5: 355 85% 58%;
+
+    --radius: 0.625rem;
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* ── sidebar */
+    --sidebar-background: 250 32% 3%;
+    --sidebar-foreground: 220 18% 82%;
+    --sidebar-primary: 300 100% 65%;
+    --sidebar-primary-foreground: 250 30% 4%;
+    --sidebar-accent: 255 22% 9%;
+    --sidebar-accent-foreground: 220 20% 92%;
+    --sidebar-border: 260 18% 11%;
+    --sidebar-ring: 300 100% 65%;
+
+    /* ── neon palette tokens */
+    --neon-cyan: 185 100% 50%;       /* kept for green indicators */
+    --neon-purple: 270 85% 58%;
+    --neon-pink: 300 100% 65%;       /* primary magenta */
+    --neon-green: 145 75% 48%;
+    --neon-amber: 38 100% 58%;
+    --neon-blue: 220 100% 62%;       /* accent electric blue */
+  }
+
+  .dark {
+    --background: 250 30% 4%;
+    --foreground: 220 20% 92%;
+    --card: 255 25% 7%;
+    --card-foreground: 220 20% 92%;
+    --popover: 255 25% 7%;
+    --popover-foreground: 220 20% 92%;
+    --primary: 300 100% 65%;
+    --primary-foreground: 250 30% 4%;
+    --secondary: 270 85% 58%;
+    --secondary-foreground: 220 20% 96%;
+    --muted: 255 20% 11%;
+    --muted-foreground: 240 12% 50%;
+    --accent: 220 100% 62%;
+    --accent-foreground: 220 20% 96%;
+    --destructive: 355 85% 58%;
+    --destructive-foreground: 220 20% 96%;
+    --border: 260 18% 14%;
+    --input: 255 20% 10%;
+    --ring: 300 100% 65%;
+    --sidebar-background: 250 32% 3%;
+    --sidebar-foreground: 220 18% 82%;
+    --sidebar-primary: 300 100% 65%;
+    --sidebar-primary-foreground: 250 30% 4%;
+    --sidebar-accent: 255 22% 9%;
+    --sidebar-accent-foreground: 220 20% 92%;
+    --sidebar-border: 260 18% 11%;
+    --sidebar-ring: 300 100% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ── Scrollbar ─────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(260 18% 18%); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(300 100% 65% / 0.4); }
+
+/* ── Glassmorphism surfaces ────────────── */
+.glass {
+  background: hsl(250 30% 5% / 0.75);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid hsl(270 30% 18% / 0.6);
+}
+.glass-card {
+  background: hsl(255 25% 7% / 0.88);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid hsl(270 25% 16% / 0.65);
+}
+.glass-elevated {
+  background: hsl(255 25% 9% / 0.97);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid hsl(270 30% 20% / 0.8);
+  box-shadow:
+    0 0 0 1px hsl(300 100% 65% / 0.08),
+    0 8px 40px hsl(250 30% 2% / 0.7),
+    0 2px 8px hsl(250 30% 2% / 0.5);
+}
+
+/* ── Night City background ─────────────── */
+.grid-bg {
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -10%, hsl(300 100% 65% / 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 90% 80%,  hsl(220 100% 62% / 0.05) 0%, transparent 50%),
+    linear-gradient(hsl(260 18% 12% / 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(260 18% 12% / 0.18) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 52px 52px, 52px 52px;
+}
+
+/* ── Glow utilities ────────────────────── */
+.neon-glow-cyan {
+  box-shadow:
+    0 0 14px hsl(300 100% 65% / 0.30),
+    0 0 32px hsl(300 100% 65% / 0.12);
+}
+.neon-glow-purple {
+  box-shadow:
+    0 0 14px hsl(270 85% 58% / 0.35),
+    0 0 32px hsl(270 85% 58% / 0.14);
+}
+.neon-glow-green {
+  box-shadow:
+    0 0 10px hsl(145 75% 48% / 0.35),
+    0 0 24px hsl(145 75% 48% / 0.14);
+}
+.neon-glow-pink {
+  box-shadow:
+    0 0 16px hsl(300 100% 65% / 0.45),
+    0 0 40px hsl(300 100% 65% / 0.18),
+    0 0 80px hsl(300 100% 65% / 0.06);
+}
+.neon-glow-blue {
+  box-shadow:
+    0 0 14px hsl(220 100% 62% / 0.35),
+    0 0 32px hsl(220 100% 62% / 0.14);
+}
+
+.neon-text-cyan {
+  text-shadow:
+    0 0 12px hsl(300 100% 65% / 0.70),
+    0 0 24px hsl(300 100% 65% / 0.35),
+    0 0 48px hsl(300 100% 65% / 0.15);
+}
+.neon-text-purple {
+  text-shadow:
+    0 0 12px hsl(270 85% 58% / 0.70),
+    0 0 24px hsl(270 85% 58% / 0.35);
+}
+
+/* ── Status dot pulse ──────────────────── */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.55; transform: scale(0.82); }
+}
+.pulse-dot { animation: status-pulse 2.4s ease-in-out infinite; }
+
+/* ── Shimmer skeleton ──────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(255 22% 10%) 0%,
+    hsl(260 20% 15%) 40%,
+    hsl(255 22% 10%) 80%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ── Gradient borders ──────────────────── */
+.gradient-border-cyan {
+  box-shadow: 0 0 0 1px hsl(300 100% 65% / 0.25), inset 0 1px 0 hsl(300 100% 65% / 0.07);
+}
+.gradient-border-purple {
+  box-shadow: 0 0 0 1px hsl(270 85% 58% / 0.25), inset 0 1px 0 hsl(270 85% 58% / 0.07);
+}
+
+/* ── RGB animated border ───────────────── */
+@keyframes rgb-border {
+  0%   { border-color: hsl(300 100% 65% / 0.5); }
+  33%  { border-color: hsl(220 100% 62% / 0.5); }
+  66%  { border-color: hsl(270 85%  58% / 0.5); }
+  100% { border-color: hsl(300 100% 65% / 0.5); }
+}
+.rgb-border { animation: rgb-border 4s linear infinite; }
+
+/* ── Card hover ────────────────────────── */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 28px hsl(250 30% 2% / 0.6),
+    0 0 0 1px hsl(300 100% 65% / 0.15);
+}
+
+/* ── Button glows ──────────────────────── */
+.btn-glow-cyan:hover {
+  box-shadow:
+    0 0 20px hsl(300 100% 65% / 0.45),
+    0 0 8px  hsl(300 100% 65% / 0.25);
+}
+.btn-glow-purple:hover {
+  box-shadow:
+    0 0 20px hsl(270 85% 58% / 0.45),
+    0 0 8px  hsl(270 85% 58% / 0.25);
+}
+
+/* ── Sidebar active ────────────────────── */
+.sidebar-active-bg {
+  background: linear-gradient(
+    90deg,
+    hsl(300 100% 65% / 0.14) 0%,
+    hsl(270 85%  58% / 0.06) 60%,
+    transparent 100%
+  );
+}
+
+/* ── Chart tooltip ─────────────────────── */
+.recharts-tooltip-wrapper { outline: none !important; }
+
+/* ── Focus ─────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid hsl(300 100% 65% / 0.6);
+  outline-offset: 2px;
+}

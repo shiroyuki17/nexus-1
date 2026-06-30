@@ -1,0 +1,49 @@
+{
+  "name": "PC",
+  "type": "object",
+  "properties": {
+    "pc_number": {
+      "type": "number",
+      "description": "PC station number"
+    },
+    "zone": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "vip",
+        "tournament"
+      ],
+      "default": "standard"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "occupied",
+        "reserved",
+        "maintenance"
+      ],
+      "default": "available"
+    },
+    "specs": {
+      "type": "string",
+      "description": "PC specifications"
+    },
+    "current_user_id": {
+      "type": "string",
+      "description": "Current user ID"
+    },
+    "session_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "default": 5
+    }
+  },
+  "required": [
+    "pc_number",
+    "zone"
+  ]
+}
