@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Monitor, CalendarClock, Gamepad2, UtensilsCrossed,
   User, Trophy, Shield, ChevronRight, Zap, LogOut
 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 
 const navItems = [
   { path: "/",            icon: LayoutDashboard, label: "Dashboard" },
@@ -21,6 +21,7 @@ const navItems = [
 const COLLAPSED_KEY = "nexus_sidebar_collapsed";
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem(COLLAPSED_KEY) === "true"; } catch { return false; }
   });
@@ -113,7 +114,7 @@ export default function Sidebar() {
       <div className="pb-2 px-1.5 space-y-0.5 shrink-0" style={{ borderTop: "1px solid hsl(224 20% 12% / 0.8)" }}>
         <div className="pt-1.5" />
         <button
-          onClick={() => base44.auth.logout("/")}
+          onClick={logout}
           className="relative flex items-center h-9 w-full rounded-lg px-2.5 gap-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-all duration-150 group"
         >
           <LogOut className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} />

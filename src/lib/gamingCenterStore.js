@@ -1,0 +1,248 @@
+const STORAGE_KEY = 'nexus_gaming_center_state';
+const CURRENT_USER_KEY = 'nexus_current_user_id';
+
+const nowIso = () => new Date().toISOString();
+
+const defaultState = {
+  users: [
+    {
+      id: 'admin',
+      username: 'admin',
+      password: 'admin123',
+      role: 'admin',
+      balance: 150000,
+      points: 420,
+      rank: 'Diamond',
+      total_hours: 36,
+    },
+    {
+      id: 'player',
+      username: 'player',
+      password: 'player123',
+      role: 'user',
+      balance: 50000,
+      points: 80,
+      rank: 'Bronze',
+      total_hours: 4,
+    },
+  ],
+  pcs: Array.from({ length: 12 }, (_, index) => {
+    const number = index + 1;
+    const zone = number > 10 ? 'tournament' : number > 6 ? 'vip' : 'standard';
+    return {
+      id: `pc-${number}`,
+      pc_number: number,
+      zone,
+      status: 'available',
+      specs: zone === 'standard' ? 'RTX 3060 / 165Hz' : 'RTX 4070 / 240Hz',
+      current_user_id: null,
+      session_start: null,
+      hourly_rate: zone === 'standard' ? 5000 : zone === 'vip' ? 8000 : 10000,
+    };
+  }),
+  sessions: [],
+  payments: [],
+};
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+export function getState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    const seeded = clone(defaultState);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+    return seeded;
+  }
+
+  return JSON.parse(raw);
+}
+
+export function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  window.dispatchEvent(new Event('nexus-state-change'));
+  return state;
+}
+
+export function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(CURRENT_USER_KEY);
+  return getState();
+}
+
+export function getCurrentUser() {
+  const state = getState();
+  const id = localStorage.getItem(CURRENT_USER_KEY);
+  return state.users.find((user) => user.id === id) ?? null;
+}
+
+export function setCurrentUser(user) {
+  if (user) {
+    localStorage.setItem(CURRENT_USER_KEY, user.id);
+  } else {
+    localStorage.removeItem(CURRENT_USER_KEY);
+  }
+  window.dispatchEvent(new Event('nexus-auth-change'));
+}
+
+export function loginUser(username, password) {
+  const state = getState();
+  const user = state.users.find(
+    (item) => item.username.toLowerCase() === username.toLowerCase() && item.password === password
+  );
+
+  if (!user) {
+    throw new Error('Нэвтрэх нэр эсвэл нууц үг буруу байна.');
+  }
+
+  setCurrentUser(user);
+  return user;
+}
+
+export function registerUser(username, password) {
+  const state = getState();
+  if (state.users.some((user) => user.username.toLowerCase() === username.toLowerCase())) {
+    throw new Error('Ийм нэртэй хэрэглэгч бүртгэлтэй байна.');
+  }
+
+  const user = {
+    id: `user-${Date.now()}`,
+    username,
+    password,
+    role: 'user',
+    balance: 30000,
+    points: 0,
+    rank: 'Bronze',
+    total_hours: 0,
+  };
+
+  state.users.push(user);
+  saveState(state);
+  setCurrentUser(user);
+  return user;
+}
+
+export function startPcSession(pcId, userId) {
+  const state = getState();
+  const pc = state.pcs.find((item) => item.id === pcId);
+  const user = state.users.find((item) => item.id === userId);
+
+  if (!pc || !user) throw new Error('PC эсвэл хэрэглэгч олдсонгүй.');
+  if (pc.status !== 'available') throw new Error('Энэ PC одоогоор сул биш байна.');
+
+  const session = {
+    id: `session-${Date.now()}`,
+    pc_id: pc.id,
+    pc_number: pc.pc_number,
+    user_id: user.id,
+    user_name: user.username,
+    start_time: nowIso(),
+    end_time: null,
+    hourly_rate: pc.hourly_rate,
+    total_cost: 0,
+    status: 'active',
+  };
+
+  pc.status = 'occupied';
+  pc.current_user_id = user.id;
+  pc.session_start = session.start_time;
+  state.sessions.push(session);
+  saveState(state);
+  return session;
+}
+
+export function stopPcSession(pcId) {
+  const state = getState();
+  const pc = state.pcs.find((item) => item.id === pcId);
+  if (!pc || pc.status !== 'occupied') throw new Error('Идэвхтэй session алга.');
+
+  const session = state.sessions.find((item) => item.pc_id === pc.id && item.status === 'active');
+  const user = state.users.find((item) => item.id === pc.current_user_id);
+  if (!session || !user) throw new Error('Session мэдээлэл олдсонгүй.');
+
+  const end = new Date();
+  const start = new Date(session.start_time);
+  const durationHours = Math.max((end.getTime() - start.getTime()) / 36e5, 1 / 60);
+  const totalCost = Math.ceil(durationHours * session.hourly_rate);
+
+  session.end_time = end.toISOString();
+  session.duration_hours = Number(durationHours.toFixed(2));
+  session.total_cost = totalCost;
+  session.status = 'completed';
+
+  user.balance = Math.max(0, user.balance - totalCost);
+  user.points += Math.max(1, Math.round(totalCost / 1000));
+  user.total_hours = Number((user.total_hours + durationHours).toFixed(2));
+
+  state.payments.push({
+    id: `payment-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    pc_number: pc.pc_number,
+    amount: totalCost,
+    type: 'session',
+    description: `PC ${pc.pc_number} цагийн төлбөр`,
+    createdAt: end.toISOString(),
+  });
+
+  pc.status = 'available';
+  pc.current_user_id = null;
+  pc.session_start = null;
+  saveState(state);
+  return session;
+}
+
+export function updatePcRate(pcId, hourlyRate) {
+  const state = getState();
+  const pc = state.pcs.find((item) => item.id === pcId);
+  if (!pc) throw new Error('PC олдсонгүй.');
+  pc.hourly_rate = Number(hourlyRate);
+  saveState(state);
+  return pc;
+}
+
+export function topUpUser(userId, amount) {
+  const state = getState();
+  const user = state.users.find((item) => item.id === userId);
+  if (!user) throw new Error('Хэрэглэгч олдсонгүй.');
+
+  const value = Number(amount);
+  user.balance += value;
+  state.payments.push({
+    id: `payment-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    amount: value,
+    type: 'top_up',
+    description: 'Данс цэнэглэлт',
+    createdAt: nowIso(),
+  });
+  saveState(state);
+  return user;
+}
+
+export function formatMoney(value) {
+  return `${Number(value ?? 0).toLocaleString('mn-MN')}₮`;
+}
+
+export function getStats(state = getState()) {
+  const today = new Date().toISOString().slice(0, 10);
+  const month = today.slice(0, 7);
+  const activeSessions = state.sessions.filter((session) => session.status === 'active');
+  const revenueToday = state.payments
+    .filter((payment) => payment.createdAt.slice(0, 10) === today)
+    .reduce((sum, payment) => sum + payment.amount, 0);
+  const revenueMonth = state.payments
+    .filter((payment) => payment.createdAt.slice(0, 7) === month)
+    .reduce((sum, payment) => sum + payment.amount, 0);
+
+  return {
+    totalPcs: state.pcs.length,
+    availablePcs: state.pcs.filter((pc) => pc.status === 'available').length,
+    activeSessions: activeSessions.length,
+    revenueToday,
+    revenueMonth,
+    users: state.users.length,
+  };
+}

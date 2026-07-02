@@ -1,5 +1,123 @@
-import SimplePage from './_SimplePage.jsx';
+import { useEffect, useMemo, useState } from 'react';
+import { Clock, Monitor, Play, Square } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
+import { formatMoney, getState, startPcSession, stopPcSession } from '@/lib/gamingCenterStore';
+
+function elapsed(startTime) {
+  if (!startTime) return '00:00:00';
+  const seconds = Math.max(0, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+  const hh = String(Math.floor(seconds / 3600)).padStart(2, '0');
+  const mm = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
+  return `${hh}:${mm}:${ss}`;
+}
 
 export default function PCStatus() {
-  return <SimplePage title="PC Status" entity="pcs" columns={[{ key: 'pc_number', label: 'PC' }, { key: 'zone', label: 'Zone' }, { key: 'status', label: 'Status' }, { key: 'hourly_rate', label: 'Rate' }]} />;
+  const { user, isAdmin } = useAuth();
+  const [state, setState] = useState(() => getState());
+  const [message, setMessage] = useState('');
+  const [, forceTick] = useState(0);
+
+  useEffect(() => {
+    const sync = () => setState(getState());
+    window.addEventListener('nexus-state-change', sync);
+    const timer = setInterval(() => forceTick((tick) => tick + 1), 1000);
+    return () => {
+      window.removeEventListener('nexus-state-change', sync);
+      clearInterval(timer);
+    };
+  }, []);
+
+  const activeByPc = useMemo(
+    () => Object.fromEntries(state.sessions.filter((session) => session.status === 'active').map((session) => [session.pc_id, session])),
+    [state.sessions]
+  );
+
+  const handleStart = (pcId) => {
+    try {
+      startPcSession(pcId, user.id);
+      setState(getState());
+      setMessage('Session эхэллээ.');
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
+  const handleStop = (pcId) => {
+    try {
+      const session = stopPcSession(pcId);
+      setState(getState());
+      setMessage(`Session дууслаа. Нийт төлбөр: ${formatMoney(session.total_cost)}`);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
+  return (
+    <section className="space-y-5">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-foreground">PC / цагийн удирдлага</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Сул компьютер сонгоод цаг эхлүүлэх, идэвхтэй session timer харах, зогсооход төлбөр автоматаар бодогдоно.
+        </p>
+      </div>
+
+      {message ? <div className="rounded-lg border border-primary/25 bg-primary/10 p-3 text-sm text-primary">{message}</div> : null}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {state.pcs.map((pc) => {
+          const session = activeByPc[pc.id];
+          const canStop = session && (isAdmin || session.user_id === user.id);
+          return (
+            <article key={pc.id} className="glass-card card-hover rounded-lg p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-display text-xl font-bold">PC {pc.pc_number}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{pc.zone} • {pc.specs}</p>
+                </div>
+                <span className={`rounded-md px-2 py-1 text-xs font-semibold ${pc.status === 'available' ? 'bg-green-500/15 text-green-400' : 'bg-primary/15 text-primary'}`}>
+                  {pc.status === 'available' ? 'Сул' : 'Ашиглаж байна'}
+                </span>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-md bg-muted/40 p-3">
+                  <p className="text-muted-foreground">Үнэ</p>
+                  <strong>{formatMoney(pc.hourly_rate)} / цаг</strong>
+                </div>
+                <div className="rounded-md bg-muted/40 p-3">
+                  <p className="text-muted-foreground">Timer</p>
+                  <strong className="font-mono">{elapsed(pc.session_start)}</strong>
+                </div>
+              </div>
+
+              {session ? (
+                <div className="mt-3 rounded-md bg-muted/40 p-3 text-sm">
+                  <Clock className="mr-2 inline h-4 w-4 text-primary" />
+                  {session.user_name} session ажиллаж байна.
+                </div>
+              ) : null}
+
+              <div className="mt-4 flex gap-2">
+                {pc.status === 'available' ? (
+                  <button onClick={() => handleStart(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-green-500/90 text-sm font-semibold text-white">
+                    <Play className="h-4 w-4" />
+                    Эхлүүлэх
+                  </button>
+                ) : (
+                  <button disabled={!canStop} onClick={() => handleStop(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">
+                    <Square className="h-4 w-4" />
+                    Зогсоох
+                  </button>
+                )}
+                <div className="grid h-10 w-10 place-items-center rounded-md border border-border bg-muted/30 text-muted-foreground">
+                  <Monitor className="h-4 w-4" />
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
