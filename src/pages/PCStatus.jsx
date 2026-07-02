@@ -60,6 +60,42 @@ export default function PCStatus() {
     }
   };
 
+  const handleStartAll = () => {
+    try {
+      const availablePCs = state.pcs.filter(pc => pc.status === 'available');
+      availablePCs.forEach(pc => {
+        try {
+          startPcSession(pc.id, user.id);
+        } catch (err) {
+          console.error(`Failed to start PC-${pc.pc_number}:`, err);
+        }
+      });
+      setState(getState());
+      setMessage(`${availablePCs.length} PC-ийн session эхэллээ.`);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
+  const handleStopAll = () => {
+    try {
+      const activeSessions = state.sessions.filter(session => session.status === 'active');
+      let totalCost = 0;
+      activeSessions.forEach(session => {
+        try {
+          const stoppedSession = stopPcSession(session.pc_id);
+          totalCost += stoppedSession.total_cost;
+        } catch (err) {
+          console.error(`Failed to stop session for PC:`, err);
+        }
+      });
+      setState(getState());
+      setMessage(`${activeSessions.length} session дууслаа. Нийт төлбөр: ${formatMoney(totalCost)}`);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
   const copyText = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -77,6 +113,19 @@ export default function PCStatus() {
       </div>
 
       {message ? <div className="rounded-lg border border-primary/25 bg-primary/10 p-3 text-sm text-primary">{message}</div> : null}
+
+      {isAdmin && (
+        <div className="flex gap-3">
+          <button onClick={handleStartAll} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-green-500/90 px-4 text-sm font-semibold text-white hover:opacity-90">
+            <Play className="h-4 w-4" />
+            Бүгдийг эхлүүлэх
+          </button>
+          <button onClick={handleStopAll} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90">
+            <Square className="h-4 w-4" />
+            Бүгдийг зогсоох
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {state.pcs.map((pc) => {
