@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm run render-build
-    startCommand: npm run start:render
+    startCommand: node backend/data/seedTenant.js && npm run start:render
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,4 +24,5 @@ services:
         value: nexus.audit.events
       - key: RABBITMQ_ENABLED
         value: "true"
-        # Trigger redeploy to fix deployment
+      - key: DEFAULT_TENANT
+        value: "default"

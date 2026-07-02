@@ -6,8 +6,52 @@ datasource db {
   provider = "postgresql"
 }
 
+model Tenant {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  email           String   @unique
+  phone           String?
+  address         String?
+  logo_url        String?
+  status          String   @default("active")
+  max_pcs         Int      @default(50)
+  max_users       Int      @default(500)
+  settings        Json     @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  subscription    Subscription?
+  pcs             PC[]
+  users           UserProfile[]
+  reservations    Reservation[]
+  games           Game[]
+  products        Product[]
+  foodOrders      FoodOrder[]
+  tournaments     Tournament[]
+  transactions    Transaction[]
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  tenantId        String   @unique
+  plan            String   @default("basic")
+  status          String   @default("active")
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  monthlyPrice    Float    @default(0)
+  features        Json     @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+}
+
 model UserProfile {
   id            String    @id @default(cuid())
+  tenantId      String
   user_id       String    @unique
   username      String
   avatar_url    String?
@@ -20,10 +64,16 @@ model UserProfile {
   session_start DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([user_id])
 }
 
 model PC {
   id              String    @id @default(cuid())
+  tenantId        String
   pc_number       Int       @unique
   zone            String    @default("standard")
   status          String    @default("available")
@@ -33,10 +83,15 @@ model PC {
   hourly_rate     Float     @default(5)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model Reservation {
   id             String   @id @default(cuid())
+  tenantId       String
   user_id        String
   user_name      String?
   pc_id          String
@@ -50,10 +105,15 @@ model Reservation {
   total_cost     Float?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model Game {
   id          String   @id @default(cuid())
+  tenantId    String
   title       String
   category    String
   description String?
@@ -63,10 +123,15 @@ model Game {
   min_specs   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model Product {
   id          String   @id @default(cuid())
+  tenantId    String
   name        String
   category    String   @default("drinks")
   price       Float
@@ -75,10 +140,15 @@ model Product {
   available   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model FoodOrder {
   id        String   @id @default(cuid())
+  tenantId  String
   user_id   String
   user_name String?
   items     Json
@@ -88,10 +158,15 @@ model FoodOrder {
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model Tournament {
   id                   String   @id @default(cuid())
+  tenantId             String
   title                String
   game                 String
   description          String?
@@ -105,6 +180,10 @@ model Tournament {
   image_url            String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+  
+  tenant               Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model TournamentRegistration {
@@ -120,6 +199,7 @@ model TournamentRegistration {
 
 model Transaction {
   id            String   @id @default(cuid())
+  tenantId      String
   user_id       String
   type          String
   amount        Float
@@ -127,6 +207,10 @@ model Transaction {
   balance_after Float?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
 }
 
 model EventLog {

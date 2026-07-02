@@ -20,6 +20,7 @@ import FoodDrinks from '@/pages/FoodDrinks';
 import Profile from '@/pages/Profile';
 import Tournaments from '@/pages/Tournaments';
 import Admin from '@/pages/Admin';
+import TenantSelect from '@/pages/TenantSelect';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      <Route path="/tenant-select" element={<TenantSelect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
