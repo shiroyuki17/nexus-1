@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Banknote, RefreshCcw, Settings, Users } from 'lucide-react';
-import { formatMoney, getState, getStats, resetState, topUpUser, updatePcRate } from '@/lib/gamingCenterStore';
+import { formatMoney, getState, getStats, resetState, topUpUser, updatePcCredentials, updatePcRate, updatePcStatus } from '@/lib/gamingCenterStore';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function Admin() {
@@ -37,6 +37,23 @@ export default function Admin() {
     updatePcRate(pcId, rate);
     setState(getState());
     setMessage('Цагийн үнэ шинэчлэгдлээ.');
+  };
+
+  const handlePcStatus = (pcId, status) => {
+    updatePcStatus(pcId, status);
+    setState(getState());
+    setMessage('PC төлөв шинэчлэгдлээ.');
+  };
+
+  const handleCredentials = (pcId, field, value) => {
+    const pc = state.pcs.find((item) => item.id === pcId);
+    updatePcCredentials(
+      pcId,
+      field === 'login_name' ? value : pc.login_name,
+      field === 'access_code' ? value : pc.access_code
+    );
+    setState(getState());
+    setMessage('PC нэвтрэх мэдээлэл шинэчлэгдлээ.');
   };
 
   const handleReset = () => {
@@ -123,6 +140,63 @@ export default function Admin() {
               </label>
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-lg p-4">
+        <h2 className="font-display text-lg font-semibold">PC суудал / нэвтрэх код удирдах</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Бусад PC-үүдийн сул, захиалсан, засвартай төлөв болон нэр/нууцыг admin-аас өөрчилнө.</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {state.pcs.map((pc) => (
+            <div key={pc.id} className="rounded-lg border border-border bg-muted/30 p-3">
+              <div className="mb-3 flex items-center justify-between">
+                <strong className="font-display">PC-{String(pc.pc_number).padStart(2, '0')}</strong>
+                <span className="rounded bg-background px-2 py-1 text-xs uppercase text-muted-foreground">{pc.zone}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="text-xs text-muted-foreground">
+                  Нэр
+                  <input
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                    value={pc.login_name}
+                    onChange={(event) => handleCredentials(pc.id, 'login_name', event.target.value)}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  Нууц
+                  <input
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                    value={pc.access_code}
+                    onChange={(event) => handleCredentials(pc.id, 'access_code', event.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <label className="text-xs text-muted-foreground">
+                  Үнэ
+                  <input
+                    type="number"
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                    value={pc.hourly_rate}
+                    onChange={(event) => handleRate(pc.id, event.target.value)}
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground">
+                  Төлөв
+                  <select
+                    className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                    value={pc.status}
+                    onChange={(event) => handlePcStatus(pc.id, event.target.value)}
+                  >
+                    <option value="available">available</option>
+                    <option value="reserved">reserved</option>
+                    <option value="occupied">occupied</option>
+                    <option value="maintenance">maintenance</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

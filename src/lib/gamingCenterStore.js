@@ -150,11 +150,13 @@ const defaultState = {
       id: `pc-${number}`,
       pc_number: number,
       zone,
-      status: 'available',
+      status: [3, 5].includes(number) ? 'maintenance' : 'available',
       specs: zone === 'standard' ? 'RTX 3060 / 165Hz' : 'RTX 4070 / 240Hz',
       current_user_id: null,
       session_start: null,
       hourly_rate: zone === 'standard' ? 5000 : zone === 'vip' ? 8000 : 10000,
+      login_name: `goypc${number}`,
+      access_code: String(1800 + number * 10),
     };
   }),
   games: defaultGames,
@@ -187,6 +189,25 @@ function normalizeState(state) {
     foodOrders: state.foodOrders ?? [],
     tournamentRegistrations: state.tournamentRegistrations ?? [],
   };
+}
+
+export function updatePcStatus(pcId, status) {
+  const state = getState();
+  const pc = state.pcs.find((item) => item.id === pcId);
+  if (!pc) throw new Error('PC олдсонгүй.');
+  pc.status = status;
+  saveState(state);
+  return pc;
+}
+
+export function updatePcCredentials(pcId, loginName, accessCode) {
+  const state = getState();
+  const pc = state.pcs.find((item) => item.id === pcId);
+  if (!pc) throw new Error('PC олдсонгүй.');
+  pc.login_name = loginName;
+  pc.access_code = accessCode;
+  saveState(state);
+  return pc;
 }
 
 export function getState() {
@@ -394,11 +415,65 @@ export function createReservation(userId, pcId, reservationDate, startTime, dura
   return reservation;
 }
 
+export function createSeatReservations(userId, pcIds, reservationDate, startTime, durationHours) {
+  const state = getState();
+  const user = state.users.find((item) => item.id === userId);
+  if (!user) throw new Error('Хэрэглэгч олдсонгүй.');
+
+  const duration = Number(durationHours);
+  const selectedPcs = state.pcs.filter((pc) => pcIds.includes(pc.id));
+  if (selectedPcs.length === 0) throw new Error('Суудал сонгоно уу.');
+  if (selectedPcs.some((pc) => pc.status !== 'available')) throw new Error('Сонгосон PC дотор сул биш суудал байна.');
+
+  const totalCost = selectedPcs.reduce((sum, pc) => sum + Math.ceil(duration * pc.hourly_rate), 0);
+  if (user.balance < totalCost) throw new Error(`Coin ${formatMoney(totalCost - user.balance)} дутуу байна.`);
+
+  user.balance -= totalCost;
+  const createdAt = nowIso();
+  const reservations = selectedPcs.map((pc) => {
+    pc.status = 'reserved';
+    return {
+      id: `reservation-${pc.id}-${Date.now()}`,
+      user_id: user.id,
+      user_name: user.username,
+      pc_id: pc.id,
+      pc_number: pc.pc_number,
+      zone: pc.zone,
+      date: reservationDate,
+      start_time: startTime,
+      end_time: addHoursToTime(startTime, duration),
+      duration_hours: duration,
+      status: 'confirmed',
+      total_cost: Math.ceil(duration * pc.hourly_rate),
+      login_name: pc.login_name,
+      access_code: pc.access_code,
+      createdAt,
+    };
+  });
+
+  state.reservations.push(...reservations);
+  state.payments.push({
+    id: `payment-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    amount: totalCost,
+    type: 'reservation',
+    description: `${selectedPcs.length} PC урьдчилсан захиалга`,
+    createdAt,
+  });
+  saveState(state);
+  return reservations;
+}
+
 export function cancelReservation(reservationId) {
   const state = getState();
   const reservation = state.reservations.find((item) => item.id === reservationId);
   if (!reservation) throw new Error('Захиалга олдсонгүй.');
   reservation.status = 'cancelled';
+  const pc = state.pcs.find((item) => item.id === reservation.pc_id);
+  if (pc?.status === 'reserved') {
+    pc.status = 'available';
+  }
   saveState(state);
   return reservation;
 }

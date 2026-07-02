@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Clock, Monitor, Play, Square } from 'lucide-react';
+import { Clock, Copy, Monitor, Play, Square } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { formatMoney, getState, startPcSession, stopPcSession } from '@/lib/gamingCenterStore';
 
@@ -11,6 +11,13 @@ function elapsed(startTime) {
   const ss = String(seconds % 60).padStart(2, '0');
   return `${hh}:${mm}:${ss}`;
 }
+
+const statusStyle = {
+  available: 'bg-green-500/15 text-green-400',
+  occupied: 'bg-primary/15 text-primary',
+  reserved: 'bg-blue-500/15 text-blue-300',
+  maintenance: 'bg-muted text-muted-foreground',
+};
 
 export default function PCStatus() {
   const { user, isAdmin } = useAuth();
@@ -53,13 +60,20 @@ export default function PCStatus() {
     }
   };
 
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage('Хууллаа.');
+    } catch {
+      setMessage(text);
+    }
+  };
+
   return (
     <section className="space-y-5">
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">PC / цагийн удирдлага</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Сул компьютер сонгоод цаг эхлүүлэх, идэвхтэй session timer харах, зогсооход төлбөр автоматаар бодогдоно.
-        </p>
+        <h1 className="font-display text-2xl font-bold text-foreground">PC-д нэвтрэх</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Сул PC дээр session эхлүүлэх эсвэл захиалсан PC-ийн нэр/нууцаар шууд нэвтэрнэ.</p>
       </div>
 
       {message ? <div className="rounded-lg border border-primary/25 bg-primary/10 p-3 text-sm text-primary">{message}</div> : null}
@@ -68,16 +82,36 @@ export default function PCStatus() {
         {state.pcs.map((pc) => {
           const session = activeByPc[pc.id];
           const canStop = session && (isAdmin || session.user_id === user.id);
+          const canStart = pc.status === 'available';
+
           return (
             <article key={pc.id} className="glass-card card-hover rounded-lg p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-display text-xl font-bold">PC {pc.pc_number}</p>
+                  <p className="font-display text-xl font-bold">PC-{String(pc.pc_number).padStart(2, '0')}</p>
                   <p className="mt-1 text-sm text-muted-foreground">{pc.zone} • {pc.specs}</p>
                 </div>
-                <span className={`rounded-md px-2 py-1 text-xs font-semibold ${pc.status === 'available' ? 'bg-green-500/15 text-green-400' : 'bg-primary/15 text-primary'}`}>
-                  {pc.status === 'available' ? 'Сул' : 'Ашиглаж байна'}
+                <span className={`rounded-md px-2 py-1 text-xs font-semibold ${statusStyle[pc.status] ?? statusStyle.available}`}>
+                  {pc.status}
                 </span>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-blue-500/20 bg-black/30 p-3">
+                <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Нэвтрэх мэдээлэл</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Нэр</span>
+                  <button onClick={() => copyText(pc.login_name)} className="inline-flex items-center gap-2 font-semibold">
+                    {pc.login_name}
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="mt-2 flex justify-between text-sm">
+                  <span className="text-muted-foreground">Нууц</span>
+                  <button onClick={() => copyText(pc.access_code)} className="inline-flex items-center gap-2 font-display text-lg font-bold text-blue-400">
+                    {pc.access_code}
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -99,10 +133,10 @@ export default function PCStatus() {
               ) : null}
 
               <div className="mt-4 flex gap-2">
-                {pc.status === 'available' ? (
+                {canStart ? (
                   <button onClick={() => handleStart(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-green-500/90 text-sm font-semibold text-white">
                     <Play className="h-4 w-4" />
-                    Эхлүүлэх
+                    Шууд нэвтрэх
                   </button>
                 ) : (
                   <button disabled={!canStop} onClick={() => handleStop(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">
