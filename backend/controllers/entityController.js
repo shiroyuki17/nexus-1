@@ -1,4 +1,6 @@
 import { prisma } from '../lib/prisma.js';
+import { entityEventName } from '../events/eventNames.js';
+import { publishEvent } from '../events/rabbitmq.js';
 import { getEntityConfig, normalizePayload } from '../utils/entityConfig.js';
 
 function getDelegate(entity) {
@@ -57,6 +59,11 @@ export async function createEntity(req, res, next) {
 
     const data = normalizePayload(req.body, entity.config);
     const created = await entity.delegate.create({ data });
+    await publishEvent(entityEventName(req.params.entity, 'Created'), {
+      entity: req.params.entity,
+      id: created.id,
+      data: created,
+    });
 
     return res.status(201).json(created);
   } catch (error) {
@@ -76,6 +83,11 @@ export async function updateEntity(req, res, next) {
       where: { id: req.params.id },
       data,
     });
+    await publishEvent(entityEventName(req.params.entity, 'Updated'), {
+      entity: req.params.entity,
+      id: updated.id,
+      data: updated,
+    });
 
     return res.json(updated);
   } catch (error) {
@@ -90,8 +102,13 @@ export async function deleteEntity(req, res, next) {
       return res.status(404).json({ message: 'Unknown entity' });
     }
 
-    await entity.delegate.delete({
+    const deleted = await entity.delegate.delete({
       where: { id: req.params.id },
+    });
+    await publishEvent(entityEventName(req.params.entity, 'Deleted'), {
+      entity: req.params.entity,
+      id: req.params.id,
+      data: deleted,
     });
 
     return res.status(204).send();

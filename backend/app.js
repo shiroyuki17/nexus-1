@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { entityRouter } from './routes/entityRoutes.js';
+import { eventRouter } from './routes/eventRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { tokenAuth } from './middleware/tokenAuth.js';
 
@@ -19,6 +20,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api', tokenAuth);
+app.use('/api', eventRouter);
 app.use('/api', entityRouter);
 
 if (process.env.NODE_ENV === 'production') {

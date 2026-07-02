@@ -30,6 +30,10 @@ Create `.env` from `.env.example`.
 ```env
 DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DATABASE"
 API_TOKEN="your-secret-api-token"
+RABBITMQ_URL="amqp://localhost:5672"
+RABBITMQ_EXCHANGE="nexus.events"
+RABBITMQ_AUDIT_QUEUE="nexus.audit.events"
+RABBITMQ_ENABLED="true"
 PORT=3000
 VITE_API_URL="/api"
 VITE_API_TOKEN="your-secret-api-token"
@@ -54,9 +58,15 @@ DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
 API_TOKEN=your-secret-api-token
 VITE_API_URL=/api
 VITE_API_TOKEN=your-secret-api-token
+RABBITMQ_URL=amqp://USER:PASSWORD@HOST:5672
+RABBITMQ_EXCHANGE=nexus.events
+RABBITMQ_AUDIT_QUEUE=nexus.audit.events
+RABBITMQ_ENABLED=true
 ```
 
 `start:render` runs `prisma db push` before starting the server, so MySQL tables are created from `prisma/schema.prisma`.
+
+RabbitMQ events are published to the `nexus.events` topic exchange. Entity create/update/delete API calls emit events such as `GamesCreated`, `ProductsUpdated`, and `ReservationsDeleted`. The built-in audit consumer stores processed events in the `EventLog` table.
 
 ## Docker
 
@@ -80,6 +90,12 @@ http://localhost:3000
 ```
 
 The compose file creates a local MySQL database named `nexus_1` and runs `prisma db push` before the server starts.
+RabbitMQ management UI is available at:
+
+```txt
+http://localhost:15672
+guest / guest
+```
 
 ## Checks
 

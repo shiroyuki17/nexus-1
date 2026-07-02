@@ -16,3 +16,11 @@ services:
         sync: false
       - key: VITE_API_TOKEN
         sync: false
+      - key: RABBITMQ_URL
+        sync: false
+      - key: RABBITMQ_EXCHANGE
+        value: nexus.events
+      - key: RABBITMQ_AUDIT_QUEUE
+        value: nexus.audit.events
+      - key: RABBITMQ_ENABLED
+        value: "true"
