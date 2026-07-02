@@ -24,3 +24,4 @@ services:
         value: nexus.audit.events
       - key: RABBITMQ_ENABLED
         value: "true"
+        # Trigger redeploy to fix deployment
