@@ -63,16 +63,27 @@ export default function PCStatus() {
   const handleStartAll = () => {
     try {
       const availablePCs = state.pcs.filter(pc => pc.status === 'available');
+      console.log('Available PCs:', availablePCs.length);
+      
+      if (availablePCs.length === 0) {
+        setMessage('Сул PC алга байна.');
+        return;
+      }
+
+      let startedCount = 0;
       availablePCs.forEach(pc => {
         try {
           startPcSession(pc.id, user.id);
+          startedCount++;
         } catch (err) {
           console.error(`Failed to start PC-${pc.pc_number}:`, err);
         }
       });
+      
       setState(getState());
-      setMessage(`${availablePCs.length} PC-ийн session эхэллээ.`);
+      setMessage(`${startedCount}/${availablePCs.length} PC-ийн session эхэллээ.`);
     } catch (err) {
+      console.error('Start all error:', err);
       setMessage(err.message);
     }
   };
@@ -80,18 +91,30 @@ export default function PCStatus() {
   const handleStopAll = () => {
     try {
       const activeSessions = state.sessions.filter(session => session.status === 'active');
+      console.log('Active sessions:', activeSessions.length);
+      
+      if (activeSessions.length === 0) {
+        setMessage('Идэвхитэй session алга байна.');
+        return;
+      }
+
       let totalCost = 0;
+      let stoppedCount = 0;
+      
       activeSessions.forEach(session => {
         try {
           const stoppedSession = stopPcSession(session.pc_id);
           totalCost += stoppedSession.total_cost;
+          stoppedCount++;
         } catch (err) {
           console.error(`Failed to stop session for PC:`, err);
         }
       });
+      
       setState(getState());
-      setMessage(`${activeSessions.length} session дууслаа. Нийт төлбөр: ${formatMoney(totalCost)}`);
+      setMessage(`${stoppedCount}/${activeSessions.length} session дууслаа. Нийт төлбөр: ${formatMoney(totalCost)}`);
     } catch (err) {
+      console.error('Stop all error:', err);
       setMessage(err.message);
     }
   };
