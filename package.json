@@ -10,6 +10,7 @@
       "dev": "vite",
       "dev:api": "node --watch backend/server.js",
       "start": "node backend/server.js",
+      "start:render": "prisma db push && node backend/server.js",
       "build": "prisma generate && vite build",
       "vercel-build": "prisma generate && vite build",
       "render-build": "prisma generate && vite build",

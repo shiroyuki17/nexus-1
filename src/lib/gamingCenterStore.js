@@ -9,7 +9,7 @@ const defaultGames = [
     title: 'Valorant',
     category: 'FPS',
     description: '5v5 tactical shooter, tournament болон ranked тоглолтод тохиромжтой.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=900&q=80',
     is_featured: true,
     popularity: 96,
     min_specs: 'RTX 3060 / 144Hz+',
@@ -19,7 +19,7 @@ const defaultGames = [
     title: 'Counter-Strike 2',
     category: 'FPS',
     description: 'LAN match, team practice, competitive setup.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80',
     is_featured: true,
     popularity: 94,
     min_specs: 'RTX 3060 / 165Hz',
@@ -29,7 +29,7 @@ const defaultGames = [
     title: 'Dota 2',
     category: 'MOBA',
     description: '5v5 багийн тоглолт, tournament room-д тохиромжтой.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1560253023-3ec5d502959f?auto=format&fit=crop&w=900&q=80',
     is_featured: false,
     popularity: 88,
     min_specs: 'GTX 1660 / 120Hz',
@@ -39,7 +39,7 @@ const defaultGames = [
     title: 'League of Legends',
     category: 'MOBA',
     description: 'Solo/duo болон team queue тоглолт.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=900&q=80',
     is_featured: false,
     popularity: 84,
     min_specs: 'GTX 1650 / 120Hz',
@@ -49,7 +49,7 @@ const defaultGames = [
     title: 'PUBG',
     category: 'Battle Royale',
     description: 'Squad room, headset setup, high FPS configuration.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1603481546579-65d935ba9cdd?auto=format&fit=crop&w=900&q=80',
     is_featured: true,
     popularity: 90,
     min_specs: 'RTX 3060 / 165Hz',
@@ -59,7 +59,7 @@ const defaultGames = [
     title: 'EA Sports FC',
     category: 'Sports',
     description: '1v1 болон casual tournament-д тохиромжтой.',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?auto=format&fit=crop&w=900&q=80',
     is_featured: false,
     popularity: 72,
     min_specs: 'GTX 1650 / Controller',
@@ -67,12 +67,12 @@ const defaultGames = [
 ];
 
 const defaultProducts = [
-  { id: 'product-cola', name: 'Coca-Cola', category: 'drinks', price: 3500, description: 'Хүйтэн ундаа', image_url: '', available: true },
-  { id: 'product-water', name: 'Water', category: 'drinks', price: 2000, description: 'Цэвэр ус', image_url: '', available: true },
-  { id: 'product-energy', name: 'Energy Drink', category: 'drinks', price: 6500, description: 'Gaming boost', image_url: '', available: true },
-  { id: 'product-chips', name: 'Chips', category: 'snacks', price: 4500, description: 'Snack pack', image_url: '', available: true },
-  { id: 'product-burger', name: 'Nexus Burger', category: 'meals', price: 12000, description: 'Burger + fries', image_url: '', available: true },
-  { id: 'product-combo', name: 'Gamer Combo', category: 'combo', price: 18000, description: 'Burger + drink + chips', image_url: '', available: true },
+  { id: 'product-cola', name: 'Coca-Cola', category: 'drinks', price: 3500, description: 'Хүйтэн ундаа', image_url: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=900&q=80', available: true },
+  { id: 'product-water', name: 'Water', category: 'drinks', price: 2000, description: 'Цэвэр ус', image_url: 'https://images.unsplash.com/photo-1564419320461-6870880221ad?auto=format&fit=crop&w=900&q=80', available: true },
+  { id: 'product-energy', name: 'Energy Drink', category: 'drinks', price: 6500, description: 'Gaming boost', image_url: 'https://images.unsplash.com/photo-1622543925917-763c34d1a86e?auto=format&fit=crop&w=900&q=80', available: true },
+  { id: 'product-chips', name: 'Chips', category: 'snacks', price: 4500, description: 'Snack pack', image_url: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=900&q=80', available: true },
+  { id: 'product-burger', name: 'Nexus Burger', category: 'meals', price: 12000, description: 'Burger + fries', image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80', available: true },
+  { id: 'product-combo', name: 'Gamer Combo', category: 'combo', price: 18000, description: 'Burger + drink + chips', image_url: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=900&q=80', available: true },
 ];
 
 const defaultTournaments = [
@@ -88,7 +88,7 @@ const defaultTournaments = [
     prize_pool: '500,000₮',
     entry_fee: 25000,
     status: 'registration_open',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'tournament-cs2',
@@ -102,7 +102,7 @@ const defaultTournaments = [
     prize_pool: '300,000₮',
     entry_fee: 15000,
     status: 'registration_open',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1511882150382-421056c89033?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'tournament-fc',
@@ -116,7 +116,7 @@ const defaultTournaments = [
     prize_pool: '150,000₮',
     entry_fee: 10000,
     status: 'upcoming',
-    image_url: '',
+    image_url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
@@ -172,12 +172,17 @@ function clone(value) {
 }
 
 function normalizeState(state) {
+  const mergeDefaults = (items = [], defaults = []) =>
+    items.length
+      ? items.map((item) => ({ ...defaults.find((entry) => entry.id === item.id), ...item, image_url: item.image_url || defaults.find((entry) => entry.id === item.id)?.image_url || '' }))
+      : clone(defaults);
+
   return {
     ...clone(defaultState),
     ...state,
-    games: state.games?.length ? state.games : clone(defaultGames),
-    products: state.products?.length ? state.products : clone(defaultProducts),
-    tournaments: state.tournaments?.length ? state.tournaments : clone(defaultTournaments),
+    games: mergeDefaults(state.games, defaultGames),
+    products: mergeDefaults(state.products, defaultProducts),
+    tournaments: mergeDefaults(state.tournaments, defaultTournaments),
     reservations: state.reservations ?? [],
     foodOrders: state.foodOrders ?? [],
     tournamentRegistrations: state.tournamentRegistrations ?? [],

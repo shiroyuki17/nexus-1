@@ -54,13 +54,18 @@ export default function Games() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {games.map((game) => (
-          <article key={game.id} className="glass-card card-hover rounded-lg p-4">
+          <article key={game.id} className="glass-card card-hover relative rounded-lg p-4">
             <div className="flex items-start justify-between gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-                <Gamepad2 className="h-6 w-6" />
+              <div className="relative h-32 w-full overflow-hidden rounded-lg border border-border bg-muted">
+                {game.image_url ? (
+                  <img className="h-full w-full object-cover" src={game.image_url} alt={game.title} loading="lazy" />
+                ) : (
+                  <div className="grid h-full w-full place-items-center text-primary"><Gamepad2 className="h-8 w-8" /></div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
               </div>
               {game.is_featured ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-yellow-500/15 px-2 py-1 text-xs text-yellow-300">
+                <span className="absolute right-8 mt-2 inline-flex items-center gap-1 rounded-md bg-yellow-500/20 px-2 py-1 text-xs text-yellow-200 backdrop-blur">
                   <Star className="h-3.5 w-3.5" />
                   Featured
                 </span>

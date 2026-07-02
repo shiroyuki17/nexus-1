@@ -1,58 +1,67 @@
-**Welcome to your Base44 project** 
+# Nexus Gaming Center
 
-**About**
+Gaming center management app for PC sessions, reservations, food orders, tournaments, users, payments, and reports.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Local Run
 
-This project contains everything you need to run your app locally.
-
-**Edit the code in your local development environment**
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```bash
+npm install
+npm run build
+npm start
 ```
 
-Run the app: `npm run dev`
+Open:
 
-**Render deployment**
-
-Use these settings for a single Web Service:
-
+```txt
+http://localhost:3000
 ```
+
+Demo users:
+
+```txt
+admin / admin123
+player / player123
+```
+
+## Environment
+
+Create `.env` from `.env.example`.
+
+```env
+DATABASE_URL="mysql://USER:PASSWORD@HOST:3306/DATABASE"
+API_TOKEN="your-secret-api-token"
+PORT=3000
+VITE_API_URL="/api"
+VITE_API_TOKEN="your-secret-api-token"
+```
+
+`API_TOKEN` protects backend `/api/*` routes. `/api/health` stays public for uptime checks.
+
+## Render Deployment
+
+Use the included `render.yaml`, or create a Web Service manually:
+
+```txt
 Build Command: npm run render-build
-Start Command: npm start
+Start Command: npm run start:render
 ```
 
-Set environment variables:
+Set these Render environment variables:
 
-```
+```txt
+NODE_ENV=production
 DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
 API_TOKEN=your-secret-api-token
 VITE_API_URL=/api
 VITE_API_TOKEN=your-secret-api-token
-NODE_ENV=production
 ```
 
-**Publish your changes**
+`start:render` runs `prisma db push` before starting the server, so MySQL tables are created from `prisma/schema.prisma`.
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+## Checks
 
-**Docs & Support**
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```

@@ -59,8 +59,12 @@ export default function FoodDrinks() {
           {state.products.map((product) => (
             <article key={product.id} className="glass-card rounded-lg p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="grid h-12 w-12 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-                  <UtensilsCrossed className="h-6 w-6" />
+                <div className="h-28 flex-1 overflow-hidden rounded-lg border border-border bg-muted">
+                  {product.image_url ? (
+                    <img className="h-full w-full object-cover" src={product.image_url} alt={product.name} loading="lazy" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-primary"><UtensilsCrossed className="h-6 w-6" /></div>
+                  )}
                 </div>
                 <span className={`rounded-md px-2 py-1 text-xs ${product.available ? 'bg-green-500/15 text-green-400' : 'bg-destructive/15 text-destructive'}`}>
                   {product.available ? 'Available' : 'Unavailable'}
