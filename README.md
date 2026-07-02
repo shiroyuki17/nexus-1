@@ -58,6 +58,29 @@ VITE_API_TOKEN=your-secret-api-token
 
 `start:render` runs `prisma db push` before starting the server, so MySQL tables are created from `prisma/schema.prisma`.
 
+## Docker
+
+Build and run the app only:
+
+```bash
+docker build --build-arg VITE_API_URL=/api --build-arg VITE_API_TOKEN=local-dev-token -t nexus-gaming-center .
+docker run --env-file .env -p 3000:3000 nexus-gaming-center
+```
+
+Run app + local MySQL:
+
+```bash
+docker compose up --build
+```
+
+Open:
+
+```txt
+http://localhost:3000
+```
+
+The compose file creates a local MySQL database named `nexus_1` and runs `prisma db push` before the server starts.
+
 ## Checks
 
 ```bash
