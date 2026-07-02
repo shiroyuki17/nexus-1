@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { entityRouter } from './routes/entityRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { tokenAuth } from './middleware/tokenAuth.js';
 
 export const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,7 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'nexus-api' });
 });
 
+app.use('/api', tokenAuth);
 app.use('/api', entityRouter);
 
 if (process.env.NODE_ENV === 'production') {

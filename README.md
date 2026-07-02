@@ -28,6 +28,25 @@ VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
 
 Run the app: `npm run dev`
 
+**Render deployment**
+
+Use these settings for a single Web Service:
+
+```
+Build Command: npm run render-build
+Start Command: npm start
+```
+
+Set environment variables:
+
+```
+DATABASE_URL=mysql://USER:PASSWORD@HOST:3306/DATABASE
+API_TOKEN=your-secret-api-token
+VITE_API_URL=/api
+VITE_API_TOKEN=your-secret-api-token
+NODE_ENV=production
+```
+
 **Publish your changes**
 
 Open [Base44.com](http://Base44.com) and click on Publish.

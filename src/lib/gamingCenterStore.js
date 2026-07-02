@@ -3,6 +3,123 @@ const CURRENT_USER_KEY = 'nexus_current_user_id';
 
 const nowIso = () => new Date().toISOString();
 
+const defaultGames = [
+  {
+    id: 'game-valorant',
+    title: 'Valorant',
+    category: 'FPS',
+    description: '5v5 tactical shooter, tournament болон ranked тоглолтод тохиромжтой.',
+    image_url: '',
+    is_featured: true,
+    popularity: 96,
+    min_specs: 'RTX 3060 / 144Hz+',
+  },
+  {
+    id: 'game-cs2',
+    title: 'Counter-Strike 2',
+    category: 'FPS',
+    description: 'LAN match, team practice, competitive setup.',
+    image_url: '',
+    is_featured: true,
+    popularity: 94,
+    min_specs: 'RTX 3060 / 165Hz',
+  },
+  {
+    id: 'game-dota2',
+    title: 'Dota 2',
+    category: 'MOBA',
+    description: '5v5 багийн тоглолт, tournament room-д тохиромжтой.',
+    image_url: '',
+    is_featured: false,
+    popularity: 88,
+    min_specs: 'GTX 1660 / 120Hz',
+  },
+  {
+    id: 'game-lol',
+    title: 'League of Legends',
+    category: 'MOBA',
+    description: 'Solo/duo болон team queue тоглолт.',
+    image_url: '',
+    is_featured: false,
+    popularity: 84,
+    min_specs: 'GTX 1650 / 120Hz',
+  },
+  {
+    id: 'game-pubg',
+    title: 'PUBG',
+    category: 'Battle Royale',
+    description: 'Squad room, headset setup, high FPS configuration.',
+    image_url: '',
+    is_featured: true,
+    popularity: 90,
+    min_specs: 'RTX 3060 / 165Hz',
+  },
+  {
+    id: 'game-fifa',
+    title: 'EA Sports FC',
+    category: 'Sports',
+    description: '1v1 болон casual tournament-д тохиромжтой.',
+    image_url: '',
+    is_featured: false,
+    popularity: 72,
+    min_specs: 'GTX 1650 / Controller',
+  },
+];
+
+const defaultProducts = [
+  { id: 'product-cola', name: 'Coca-Cola', category: 'drinks', price: 3500, description: 'Хүйтэн ундаа', image_url: '', available: true },
+  { id: 'product-water', name: 'Water', category: 'drinks', price: 2000, description: 'Цэвэр ус', image_url: '', available: true },
+  { id: 'product-energy', name: 'Energy Drink', category: 'drinks', price: 6500, description: 'Gaming boost', image_url: '', available: true },
+  { id: 'product-chips', name: 'Chips', category: 'snacks', price: 4500, description: 'Snack pack', image_url: '', available: true },
+  { id: 'product-burger', name: 'Nexus Burger', category: 'meals', price: 12000, description: 'Burger + fries', image_url: '', available: true },
+  { id: 'product-combo', name: 'Gamer Combo', category: 'combo', price: 18000, description: 'Burger + drink + chips', image_url: '', available: true },
+];
+
+const defaultTournaments = [
+  {
+    id: 'tournament-valorant',
+    title: 'Valorant Friday Cup',
+    game: 'Valorant',
+    description: '5v5 багийн тэмцээн. Check-in 18:30.',
+    date: new Date(Date.now() + 86400000 * 5).toISOString(),
+    time: '19:00',
+    max_participants: 8,
+    current_participants: 2,
+    prize_pool: '500,000₮',
+    entry_fee: 25000,
+    status: 'registration_open',
+    image_url: '',
+  },
+  {
+    id: 'tournament-cs2',
+    title: 'CS2 Night Clash',
+    game: 'Counter-Strike 2',
+    description: '2v2 wingman format. Fast bracket.',
+    date: new Date(Date.now() + 86400000 * 9).toISOString(),
+    time: '20:00',
+    max_participants: 16,
+    current_participants: 5,
+    prize_pool: '300,000₮',
+    entry_fee: 15000,
+    status: 'registration_open',
+    image_url: '',
+  },
+  {
+    id: 'tournament-fc',
+    title: 'FC 1v1 Weekend',
+    game: 'EA Sports FC',
+    description: 'Casual controller tournament.',
+    date: new Date(Date.now() + 86400000 * 12).toISOString(),
+    time: '16:00',
+    max_participants: 12,
+    current_participants: 0,
+    prize_pool: '150,000₮',
+    entry_fee: 10000,
+    status: 'upcoming',
+    image_url: '',
+  },
+];
+
 const defaultState = {
   users: [
     {
@@ -40,12 +157,31 @@ const defaultState = {
       hourly_rate: zone === 'standard' ? 5000 : zone === 'vip' ? 8000 : 10000,
     };
   }),
+  games: defaultGames,
+  products: defaultProducts,
+  reservations: [],
+  foodOrders: [],
+  tournaments: defaultTournaments,
+  tournamentRegistrations: [],
   sessions: [],
   payments: [],
 };
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function normalizeState(state) {
+  return {
+    ...clone(defaultState),
+    ...state,
+    games: state.games?.length ? state.games : clone(defaultGames),
+    products: state.products?.length ? state.products : clone(defaultProducts),
+    tournaments: state.tournaments?.length ? state.tournaments : clone(defaultTournaments),
+    reservations: state.reservations ?? [],
+    foodOrders: state.foodOrders ?? [],
+    tournamentRegistrations: state.tournamentRegistrations ?? [],
+  };
 }
 
 export function getState() {
@@ -56,7 +192,9 @@ export function getState() {
     return seeded;
   }
 
-  return JSON.parse(raw);
+  const state = normalizeState(JSON.parse(raw));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  return state;
 }
 
 export function saveState(state) {
@@ -222,6 +360,168 @@ export function topUpUser(userId, amount) {
   return user;
 }
 
+export function createReservation(userId, pcId, reservationDate, startTime, durationHours) {
+  const state = getState();
+  const user = state.users.find((item) => item.id === userId);
+  const pc = state.pcs.find((item) => item.id === pcId);
+  if (!user || !pc) throw new Error('Хэрэглэгч эсвэл PC олдсонгүй.');
+
+  const duration = Number(durationHours);
+  const totalCost = Math.ceil(duration * pc.hourly_rate);
+  const reservation = {
+    id: `reservation-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    pc_id: pc.id,
+    pc_number: pc.pc_number,
+    zone: pc.zone,
+    date: reservationDate,
+    start_time: startTime,
+    end_time: addHoursToTime(startTime, duration),
+    duration_hours: duration,
+    status: 'confirmed',
+    total_cost: totalCost,
+    createdAt: nowIso(),
+  };
+
+  state.reservations.push(reservation);
+  saveState(state);
+  return reservation;
+}
+
+export function cancelReservation(reservationId) {
+  const state = getState();
+  const reservation = state.reservations.find((item) => item.id === reservationId);
+  if (!reservation) throw new Error('Захиалга олдсонгүй.');
+  reservation.status = 'cancelled';
+  saveState(state);
+  return reservation;
+}
+
+export function placeFoodOrder(userId, items, pcNumber, notes = '') {
+  const state = getState();
+  const user = state.users.find((item) => item.id === userId);
+  if (!user) throw new Error('Хэрэглэгч олдсонгүй.');
+
+  const orderItems = items.map((item) => {
+    const product = state.products.find((entry) => entry.id === item.product_id);
+    return {
+      product_id: item.product_id,
+      name: product?.name ?? item.name,
+      quantity: Number(item.quantity),
+      price: Number(product?.price ?? item.price),
+    };
+  });
+  const total = orderItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  if (total <= 0) throw new Error('Сагс хоосон байна.');
+
+  user.balance = Math.max(0, user.balance - total);
+  const order = {
+    id: `food-order-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    items: orderItems,
+    total,
+    status: 'pending',
+    pc_number: pcNumber ? Number(pcNumber) : null,
+    notes,
+    createdAt: nowIso(),
+  };
+
+  state.foodOrders.push(order);
+  state.payments.push({
+    id: `payment-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    amount: total,
+    type: 'food_order',
+    description: `Food order #${state.foodOrders.length}`,
+    createdAt: order.createdAt,
+  });
+  saveState(state);
+  return order;
+}
+
+export function updateFoodOrderStatus(orderId, status) {
+  const state = getState();
+  const order = state.foodOrders.find((item) => item.id === orderId);
+  if (!order) throw new Error('Захиалга олдсонгүй.');
+  order.status = status;
+  saveState(state);
+  return order;
+}
+
+export function toggleProductAvailability(productId) {
+  const state = getState();
+  const product = state.products.find((item) => item.id === productId);
+  if (!product) throw new Error('Бүтээгдэхүүн олдсонгүй.');
+  product.available = !product.available;
+  saveState(state);
+  return product;
+}
+
+export function addGame(data) {
+  const state = getState();
+  const game = {
+    id: `game-${Date.now()}`,
+    title: data.title,
+    category: data.category,
+    description: data.description,
+    image_url: '',
+    is_featured: Boolean(data.is_featured),
+    popularity: Number(data.popularity ?? 50),
+    min_specs: data.min_specs,
+  };
+  state.games.push(game);
+  saveState(state);
+  return game;
+}
+
+export function registerTournament(tournamentId, userId, teamName) {
+  const state = getState();
+  const tournament = state.tournaments.find((item) => item.id === tournamentId);
+  const user = state.users.find((item) => item.id === userId);
+  if (!tournament || !user) throw new Error('Тэмцээн эсвэл хэрэглэгч олдсонгүй.');
+  if (tournament.current_participants >= tournament.max_participants) throw new Error('Оролцогчийн тоо дүүрсэн байна.');
+  if (state.tournamentRegistrations.some((item) => item.tournament_id === tournamentId && item.user_id === userId)) {
+    throw new Error('Та энэ тэмцээнд бүртгүүлсэн байна.');
+  }
+
+  user.balance = Math.max(0, user.balance - tournament.entry_fee);
+  tournament.current_participants += 1;
+
+  const registration = {
+    id: `tournament-registration-${Date.now()}`,
+    tournament_id: tournament.id,
+    user_id: user.id,
+    user_name: user.username,
+    team_name: teamName || user.username,
+    status: 'registered',
+    createdAt: nowIso(),
+  };
+
+  state.tournamentRegistrations.push(registration);
+  state.payments.push({
+    id: `payment-${Date.now()}`,
+    user_id: user.id,
+    user_name: user.username,
+    amount: tournament.entry_fee,
+    type: 'tournament',
+    description: `${tournament.title} entry fee`,
+    createdAt: registration.createdAt,
+  });
+  saveState(state);
+  return registration;
+}
+
+function addHoursToTime(time, hours) {
+  const [hour, minute] = time.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hour, minute, 0, 0);
+  date.setMinutes(date.getMinutes() + Number(hours) * 60);
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
 export function formatMoney(value) {
   return `${Number(value ?? 0).toLocaleString('mn-MN')}₮`;
 }
@@ -244,5 +544,8 @@ export function getStats(state = getState()) {
     revenueToday,
     revenueMonth,
     users: state.users.length,
+    reservations: state.reservations.length,
+    foodOrders: state.foodOrders.length,
+    tournamentRegistrations: state.tournamentRegistrations.length,
   };
 }
