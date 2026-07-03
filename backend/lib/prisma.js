@@ -5,8 +5,15 @@ import pg from 'pg';
 const globalForPrisma = globalThis;
 
 const connectionString = process.env.DATABASE_URL;
+
+// Add SSL configuration for Render PostgreSQL
+const sslConfig = process.env.NODE_ENV === 'production' ? {
+  rejectUnauthorized: false,
+} : undefined;
+
 const pool = new pg.Pool({ 
   connectionString,
+  ssl: sslConfig,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
