@@ -1,16 +1,30 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 
 const globalForPrisma = globalThis;
+
+const connectionString = process.env.DATABASE_URL;
+
+// Add SSL configuration for PostgreSQL
+const sslConfig = process.env.NODE_ENV === 'production' ? {
+  rejectUnauthorized: false,
+} : undefined;
+
+const pool = new pg.Pool({ 
+  connectionString,
+  ssl: sslConfig,
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+});
+const adapter = new PrismaPg(pool);
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
   });
 
 if (process.env.NODE_ENV !== 'production') {

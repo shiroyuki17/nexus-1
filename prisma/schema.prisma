@@ -62,6 +62,7 @@ model UserProfile {
   current_pc    Int?
   session_active Boolean  @default(false)
   session_start DateTime?
+  role          String    @default("user")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

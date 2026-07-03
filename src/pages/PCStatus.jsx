@@ -153,8 +153,9 @@ export default function PCStatus() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {state.pcs.map((pc) => {
           const session = activeByPc[pc.id];
+          const isLocked = pc.locked_until && new Date(pc.locked_until) > new Date();
           const canStop = session && (isAdmin || session.user_id === user.id);
-          const canStart = pc.status === 'available';
+          const canStart = pc.status === 'available' && !isLocked;
 
           return (
             <article key={pc.id} className="glass-card card-hover rounded-lg p-4">
@@ -184,6 +185,11 @@ export default function PCStatus() {
                     <Copy className="h-3.5 w-3.5" />
                   </button>
                 </div>
+                {isLocked ? (
+                  <div className="mt-3 rounded-md bg-amber-500/10 p-3 text-sm text-amber-700">
+                    Lock: {new Date(pc.locked_until).toLocaleString('mn-MN')}
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -205,7 +211,18 @@ export default function PCStatus() {
               ) : null}
 
               <div className="mt-4 flex gap-2">
-                {canStart ? (
+                {isAdmin ? (
+                  <>
+                    <button onClick={() => handleStart(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-green-500/90 text-sm font-semibold text-white">
+                      <Play className="h-4 w-4" />
+                      Эхлүүлэх
+                    </button>
+                   <button onClick={() => handleStop(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+                      <Square className="h-4 w-4" />
+                      Зогсоох
+                    </button>
+                  </>
+                ) : canStart ? (
                   <button onClick={() => handleStart(pc.id)} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-md bg-green-500/90 text-sm font-semibold text-white">
                     <Play className="h-4 w-4" />
                     Шууд нэвтрэх

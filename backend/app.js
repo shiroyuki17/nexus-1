@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { entityRouter } from './routes/entityRoutes.js';
 import { eventRouter } from './routes/eventRoutes.js';
 import { tenantRouter } from './routes/tenantRoutes.js';
+import { adminRouter } from './routes/adminRoutes.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { tokenAuth } from './middleware/tokenAuth.js';
 import { tenantMiddleware } from './middleware/tenantMiddleware.js';
@@ -66,6 +67,9 @@ app.use('/api', tokenAuth);
 
 // Tenant management routes
 app.use('/api/tenants', tenantRouter);
+
+// Admin routes (require admin role)
+app.use('/api/admin', adminRouter);
 
 // Existing routes
 app.use('/api', eventRouter);
