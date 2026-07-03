@@ -28,8 +28,8 @@ export async function tenantMiddleware(req, res, next) {
       tenantSlug = req.query.tenant;
     }
 
-    // Default tenant for development
-    if (!tenantSlug && process.env.NODE_ENV === 'development') {
+    // Default tenant for development and production (fallback)
+    if (!tenantSlug) {
       tenantSlug = process.env.DEFAULT_TENANT || 'default';
     }
 
