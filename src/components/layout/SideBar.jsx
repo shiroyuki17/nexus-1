@@ -3,14 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Monitor, CalendarClock, Gamepad2, UtensilsCrossed,
-  User, Trophy, Shield, ChevronRight, Zap, LogOut, Desktop
+  User, Trophy, Shield, ChevronRight, Zap, LogOut
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
 const navItems = [
   { path: "/",            icon: LayoutDashboard, label: "Dashboard" },
   { path: "/pc-status",   icon: Monitor,         label: "PC Status" },
-  { path: "/remote-desktop", icon: Desktop,      label: "Remote Desktop" },
   { path: "/reservations",icon: CalendarClock,   label: "Reservations" },
   { path: "/games",       icon: Gamepad2,        label: "Game Library" },
   { path: "/food-drinks", icon: UtensilsCrossed, label: "Food & Drinks" },
