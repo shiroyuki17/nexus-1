@@ -6,15 +6,17 @@ const globalForPrisma = globalThis;
 
 const connectionString = process.env.DATABASE_URL;
 
-// Add SSL configuration for Render PostgreSQL
+// Add SSL configuration for Render PostgreSQL with require mode
 const sslConfig = process.env.NODE_ENV === 'production' ? {
   rejectUnauthorized: false,
+  sslmode: 'require',
 } : undefined;
 
+// Reduce connection pool for Render to avoid connection limits
 const pool = new pg.Pool({ 
   connectionString,
   ssl: sslConfig,
-  max: 20,
+  max: 5, // Reduced from 20 for Render
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 });
