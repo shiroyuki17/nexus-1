@@ -21,6 +21,7 @@ import Profile from '@/pages/Profile';
 import Tournaments from '@/pages/Tournaments';
 import Admin from '@/pages/Admin';
 import TenantSelect from '@/pages/TenantSelect';
+import RemoteDesktop from '@/pages/RemoteDesktop';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -61,6 +62,11 @@ const AuthenticatedApp = () => {
           <Route path="/food-drinks" element={<FoodDrinks />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/tournaments" element={<Tournaments />} />
+          <Route path="/remote-desktop" element={<RemoteDesktop />} />
+        </Route>
+      </Route>
+      <Route element={<ProtectedRoute roles={["admin"]} unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<AppLayout />}>
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Route>
