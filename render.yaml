@@ -26,3 +26,5 @@ services:
         value: "true"
       - key: DEFAULT_TENANT
         value: "default"
+      - key: FRONTEND_URL
+        value: "https://nexus-urth.vercel.app,http://localhost:5173"
