@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: npm run render-build
-    startCommand: node backend/server.js
+    startCommand: npx prisma db push && node backend/server.js
     envVars:
       - key: NODE_ENV
         value: production
