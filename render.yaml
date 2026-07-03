@@ -11,7 +11,7 @@ services:
       - key: VITE_API_URL
         value: /api
       - key: DATABASE_URL
-        sync: false
+        value: postgresql://nexus_5flv_user:I4PgTQThITG6ZPkNonx8ie5kzfXb85zq@dpg-d93io1pkh4rs73dc3li0-a/nexus_5flv
       - key: API_TOKEN
         sync: false
       - key: VITE_API_TOKEN
