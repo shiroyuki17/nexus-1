@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Clock, Copy, Monitor, Play, Square } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { formatMoney, getState, startPcSession, stopPcSession } from '@/lib/gamingCenterStore';
@@ -21,6 +22,7 @@ const statusStyle = {
 
 export default function PCStatus() {
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [state, setState] = useState(() => getState());
   const [message, setMessage] = useState('');
   const [, forceTick] = useState(0);
@@ -55,6 +57,10 @@ export default function PCStatus() {
       const session = stopPcSession(pcId);
       setState(getState());
       setMessage(`Session дууслаа. Нийт төлбөр: ${formatMoney(session.total_cost)}`);
+      // Redirect to home screen after stopping session
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
       setMessage(err.message);
     }
@@ -113,6 +119,10 @@ export default function PCStatus() {
       
       setState(getState());
       setMessage(`${stoppedCount}/${activeSessions.length} session дууслаа. Нийт төлбөр: ${formatMoney(totalCost)}`);
+      // Redirect to home screen after stopping all sessions
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
     } catch (err) {
       console.error('Stop all error:', err);
       setMessage(err.message);
